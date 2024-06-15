@@ -13,6 +13,8 @@ jobs:
   build-and-push-image:
     outputs:
       IMAGE_FULL_NAME: ${{ steps.meta.outputs.tags }}
+      OUTPUT_LABELS: ${{ steps.meta.outputs.labels }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -48,8 +50,10 @@ jobs:
       - name: Update fastapi-sample images
         env:
           IMAGE_FULL_NAME: ${{ needs.build-and-push-image.outputs.IMAGE_FULL_NAME }}
+          OUTPUT_LABELS: ${{ needs.build-and-push-image.outputs.OUTPUT_LABELS }}
         run: |
           echo "echo hello world"
+          echo "OUTPUT_LABELS is $OUTPUT_LABELS"
           cat manifests/fastapi-sample/deployment.yaml
           yq -i "(.spec.template.spec.containers[] | select(.name == \"fastapi-sample\")).image = \"$IMAGE_FULL_NAME\"" manifests/fastapi-sample/deployment.yaml
 
@@ -57,7 +61,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           base: main
-          title: "Update fastapi-sample"
+          title: "Update fastapi-sample # ${{needs.build-and-push-image.outputs.OUTPUT_LABELS}}"
           draft: true
           body: |
             # Changes
