@@ -49,8 +49,8 @@ jobs:
         env:
           IMAGE_FULL_NAME: ${{ needs.build-and-push-image.outputs.IMAGE_FULL_NAME }}
         run: |
-          echo "hi-onoshun"
-          cat "../../app/Dockerfile"
+          echo "echo hello world"
+          cat manifests/fastapi-sample/deployment.yaml
           yq -i "(.spec.template.spec.containers[] | select(.name == \"fastapi-sample\")).image = \"$IMAGE_FULL_NAME\"" manifests/fastapi-sample/deployment.yaml
 
       - name: Create PR
